@@ -12,7 +12,7 @@ You'll need to have the nvidia container toolkit installed your host to be able 
 ```bash
 # In the folder with Dockerfile
 podman build -t z-image-cuda:12.1 .
-``
+```
 
 ## Run
 
