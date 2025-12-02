@@ -1,0 +1,12 @@
+{
+  "name": "Z-image Devcontainer (podman)",
+  "dockerFile": "../Dockerfile",
+  "context": "..",
+  "runArgs": [
+    "--device", "nvidia.com/gpu=all",
+    "-v", "${localWorkspaceFolder}/cache:/root/.cache/huggingface/hub",
+    "-v", "${localWorkspaceFolder}/input:/workspace/input",
+    "-v", "${localWorkspaceFolder}/output:/workspace/output"
+  ],
+  "postStartCommand": "cp /workspace/input/generate.py /workspace/generate.py"
+}
