@@ -4,6 +4,7 @@ import inspect
 import random
 from pathlib import Path
 import diffusers
+import json
 import torch
 from diffusers import ZImagePipeline
 
@@ -55,7 +56,6 @@ print("Model loaded with sequential CPU offloading and fp32 VAE")
 # Example prompt
 prompt = "A Modern Nvidia GPU with 3 fans engulfed in flames."
 
-
 print("Generating image...")
 # Ensure the generator is using 'cuda'
 seed = random.randint(0, 2**32 - 1)
@@ -68,6 +68,7 @@ image = pipe(
     guidance_scale=0.0,
     generator=torch.Generator("cuda").manual_seed(seed),
 ).images[0]  # Changed back to [0] for saving a single image file
+
 def get_next_filename(out_dir: Path, seed: int, padding: int = 3, max_attempts: int = 9999) -> Path:
     """Return the next available filename path in out_dir for a given seed.
 
@@ -87,6 +88,24 @@ out_dir = Path("/workspace/output")
 save_path = get_next_filename(out_dir, seed)
 print(f"Saving image to {save_path}")
 image.save(save_path)
+
+# Create a JSON sidecar with the filename, prompt, and seed
+sidecar_path = save_path.with_suffix('.json')
+metadata = {
+    "filename": save_path.name,
+    "prompt": prompt,
+    "seed": seed,
+}
+tmp_sidecar = sidecar_path.with_suffix('.json.tmp')
+try:
+    # Write to a temporary file then rename for atomicity
+    with open(tmp_sidecar, 'w', encoding='utf-8') as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_sidecar, sidecar_path)
+    print(f"Wrote metadata to {sidecar_path}")
+except Exception as e:
+    # If writing fails, surface the error but don't crash the generation
+    print(f"Failed to write sidecar metadata: {e}")
 print("Done!")
 
 # podman run --device nvidia.com/gpu=all -it -v ./cache:/root/.cache/huggingface/hub -v ./input:/workspace/input -v ./output:/workspace/output z-image-cuda:12.1
