@@ -59,7 +59,6 @@ prompt = "A Modern Nvidia GPU with 3 fans engulfed in flames."
 print("Generating image...")
 # Ensure the generator is using 'cuda'
 seed = random.randint(0, 2**32 - 1)
-seed = 235237186
 
 image = pipe(
     prompt=prompt,

@@ -42,11 +42,11 @@ WORKDIR /workspace
 # Create a directory for model cache
 RUN mkdir -p /root/.cache/huggingface
 
-# Copy the local inference script into the container
-COPY generate-with-GPU-offloading.py /workspace/generate.py
+# When not using volume mounts copy the local inference script into the container
+# COPY input/generate.py /workspace/generate.py
 
-# Ensure the script is executable
-RUN chmod +x /workspace/generate.py
+# And ensure the script is executable
+#RUN chmod +x /workspace/generate.py
 
 # Default command
 CMD ["bash"]
